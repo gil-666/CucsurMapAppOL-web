@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="sql-wasm.js"></script>
+    <script src="ol/dist/ol.js"></script>
+    <script src="DatabaseHelper.js"></script>
+    <script src="WebAppInterface.js"></script>
+    <script src="sharedProperty.js"></script>
+    <script type="module" src="./app.js"></script>
+    <title>Información</title>
+    
+</head>
+
+<body>
+    <script type="module">
+        import {inter} from './app.js';
+        document.addEventListener('DOMContentLoaded', (event) => {
+            
+            addEdificiosFromApp();
+
+
+        });
+        document.addEventListener('DOMContentLoaded', async function () {
+            var div1 = document.getElementById("ed-grid");
+            var info = null;
+            // App.getSalonid();
+
+            if (info) {
+                // If info is not empty or null, redirect to salon.html
+                    window.location.href = 'salon.html';
+            } else {
+                // Otherwise, display the received info
+                var div2 = document.createElement("div");
+                // div2.textContent = "independent click";
+                div1.appendChild(div2);
+            }
+        });
+        async function addEdificiosFromApp() {
+            var list = document.getElementById("edificioList");
+            var edificios = JSON.parse(await App.getEdificios());
+            edificios.forEach(function (ed) {
+                var link = document.createElement("a");
+                link.href = "list.html";
+                link.className = 'col-3 li-item';
+                link.id = 'edificioItem';
+
+                var item = document.createElement("div");
+
+                var img = document.createElement("img");
+                img.src = 'images/building.png';
+                item.appendChild(img);
+
+                var text = document.createElement("div");
+                text.textContent = ed.nombre;
+
+                item.appendChild(text);
+                link.appendChild(item);
+                list.appendChild(link);
+
+                link.addEventListener("click",async function(event){
+                    
+                    await App.setEdificioid(ed.id);
+
+                });
+
+            });
+
+        }
+    </script>
+    <div class="container">
+        <br>
+        <h2 class="text-center">Edificios</h2>
+        <div id="ed-grid">
+            <div class="row text-center justify-content-center" id="edificioList">
+
+            </div>
+        </div>
+
+</body>
+<br>
+<footer id="footer">
+©2024 Universidad de Guadalajara
+<br>
+<div class="btn btn-success" style="height: auto;"><a onclick="App.sendFeedback()">Enviar comentarios</a></div>
+</footer>
+
+</html>

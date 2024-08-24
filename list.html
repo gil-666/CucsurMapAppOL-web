@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="sql-wasm.js"></script>
+    <script src="ol/dist/ol.js"></script>
+    <script src="DatabaseHelper.js"></script>
+    <script src="WebAppInterface.js"></script>
+    <script type="module" src="./app.js"></script>
+    <title>Lista</title>
+</head>
+
+<body>
+    <script type="module">
+        import { inter } from './app.js';
+        window.App = inter;
+        document.addEventListener('DOMContentLoaded', async (event) => {
+            addSalonesFromApp();
+            const edificioId = await App.getEdificioid(); // Ensure this returns the expected value
+            const edificio = JSON.parse(await App.getEdificio(edificioId));
+            document.getElementById("header-title").textContent = edificio[0].nombre;
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            // var div1 = document.getElementById("ed-grid");
+            // var info = App.getSalonid();
+
+            // if (info) {
+            //     // If info is not empty or null, redirect to salon.html
+            //     window.location.href = 'salon.html';
+            // } else {
+            //     // Otherwise, display the received info
+            //     var div2 = document.createElement("div");
+            //     div2.textContent = "independent click";
+            //     div1.appendChild(div2);
+            // }
+        });
+        async function addSalonesFromApp() {
+            var list = document.getElementById("edificioList");
+            var edificioId = await App.getEdificioid(); // Ensure this returns a valid ID
+            var salones = JSON.parse(await App.getEdificioSalones(edificioId));
+            salones.forEach(function (sal) {
+                if (sal.tipo != "vacio") {
+                    var link = document.createElement("a");
+                    link.href = "salon.html";
+                    link.className = 'col-3 li-item';
+                    link.id = 'edificioItem';
+
+                    var item = document.createElement("div");
+
+                    var img = document.createElement("img");
+                    switch (sal.tipo) {
+                        case "salon":
+                            img.src = 'images/salon.png';
+                            break;
+                        case "oficina":
+                            img.src = 'images/desk.png';
+                            break;
+                        case "sanitario":
+                            img.src = 'images/wc_black.png';
+                            sal.nombre = sal.nombre.split(':').map(String)[0];
+                            break;
+                        default:
+                            break;
+                    }
+
+                    item.appendChild(img);
+
+                    var text = document.createElement("div");
+                    text.textContent = sal.nombre;
+
+                    item.appendChild(text);
+                    link.appendChild(item);
+                    list.appendChild(link);
+                    link.addEventListener("click", async function (event) {
+                        await App.setSalonid(sal.salonid);
+                    });
+                }
+            });
+        }
+
+        function resetInfo() {
+            App.setSalonid("");
+            App.setEdificioid("");
+        }
+    </script>
+    <div class="container">
+        <br>
+        <h2 class="text-center" id="header-title">Salones</h2>
+        <div id="ed-grid">
+            <div class="row text-center justify-content-center" id="edificioList">
+
+            </div>
+        </div>
+    </div>
+</body>
+<footer id="footer">
+    <br>
+    <div class="btn btn-primary"><a href="info.html" onclick="resetInfo()" id="back-button">Regresar</a></div>
+    <br><br>
+    ©2024 Universidad de Guadalajara
+</footer>
+
+</html>

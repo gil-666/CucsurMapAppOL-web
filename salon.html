@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="ol/dist/ol.js"></script>
+    <script src="sql-wasm.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <title>salon</title>
+
+</head>
+
+<body>
+    <script type="module">
+        //VALUES
+        import {inter} from './app.js';
+        window.App = inter;
+        var salonDescriptor = "Salón de clases";
+        var oficinaDescriptor = "Oficina";
+        var sanitarioDescriptor = "Sanitarios";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            var div1 = document.getElementById("sal-grid");
+            var info = await App.getSalonid();
+            var salon = JSON.parse(await App.getSalon(info));
+            var sal = salon[0]
+            resetInfo() //to avoid zooming when not told to
+            var item = document.createElement("div");
+            item.className = 'col li-item';
+            item.id = 'edificioItem';
+
+            var title = document.createElement("div");
+            title.textContent = sal.nombre;
+            title.className = "item-title";
+
+            var details = document.createElement("div");
+            details.className = 'item-details'
+
+            var tipo = document.createElement("p");
+            if (sal.tipo == "salon") {
+                tipo.innerHTML = "<strong>Tipo:</strong><br> " + salonDescriptor;
+            }
+            else if (sal.tipo == "oficina") {
+                tipo.innerHTML = "<strong>Tipo:</strong><br> " + oficinaDescriptor;
+            }
+            else if (sal.tipo == "sanitario") {
+                tipo.innerHTML = "<strong>Tipo:</strong><br> " + sanitarioDescriptor;
+            } else {
+                tipo.innerHTML = "<strong>Tipo:</strong><br> " + sal.tipo;
+            }
+            details.appendChild(tipo);
+
+            var descripcion = document.createElement("p");
+            descripcion.innerHTML = "<strong>Descripción:</strong><br>" + sal.descripcion;
+            if (sal.descripcion != "") {
+                details.appendChild(descripcion);
+            }
+
+            var button = document.createElement("div");
+            button.className = "btn btn-success map-locate-btn"
+            button.textContent = "Ubicar en el mapa";
+            button.addEventListener("click", async function (event) {
+                navToSalon(sal.salonid)
+            });
+
+            item.appendChild(title);
+            item.appendChild(details);
+            item.appendChild(button);
+            div1.appendChild(item);
+
+
+        });
+        var div2 = document.createElement("div");
+        // div2.textContent = "navegaste a id:" + info;
+        div1.appendChild(div2);
+
+        async function resetInfo() {
+            if (App.getSalonid() != "") {
+                document.getElementById("back-button").href = "info.html";
+            }
+            App.setSalonid("");
+
+        }
+        async function navToSalon(id) {
+            await App.navToMapSalon(id);
+            resetInfo()
+
+        }
+
+    </script>
+    <div class="container text-center ">
+
+        <br>
+        <h2 class="text-center">Salón</h2>
+        <br>
+        <div id="sal-grid">
+            <div class="row text-center" id="salon">
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+<footer id="footer">
+    <br>
+    <div class="btn btn-primary"><a href="list.html" onclick="resetInfo()" id="back-button">Regresar</a></div>
+    <br><br>
+    ©2024 Universidad de Guadalajara
+</footer>
+
+</html>
